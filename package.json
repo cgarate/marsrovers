@@ -1,7 +1,7 @@
 {
-  "name": "browze-code-challenge",
+  "name": "code-challenge",
   "version": "1.0.0",
-  "description": "Carlos Garate Code Challenge for Browze",
+  "description": "Carlos Garate Code Challenge",
   "main": "rover.ts",
   "scripts": {
     "test": "jest"
