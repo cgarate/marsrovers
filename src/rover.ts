@@ -1,53 +1,90 @@
-import { NO_SPACE_FOR_LANDING } from "./constants";
-import { OrientationStringTypes } from "./rover.types";
-import { moveRover, rotateRover } from "./utils";
+const readline = require("readline");
+const fs = require("fs");
+import { landRoverJourney } from "./landRoverJourney";
+import { InstructionsType } from "./rover.types";
 
-export const landRoverJourney = (
-  plateauSizeX: number,
-  plateauSizeY: number,
-) => (
-  landingX: number,
-  landingY: number,
-  orientation: OrientationStringTypes,
-) => (instructionSet: string) => {
-  let currentOrientation = orientation;
-  let currentX = landingX;
-  let currentY = landingY;
-
-  // validate landing fits in plateau size
-  const isLandingPossible =
-    plateauSizeX >= landingX && plateauSizeY >= landingY;
-  if (!isLandingPossible) return NO_SPACE_FOR_LANDING;
-
-  const arrInstructions = instructionSet.split("");
-
-  arrInstructions.forEach((instruction) => {
-    switch (instruction) {
-      case "M":
-        const newCoordinates = moveRover(
-          currentOrientation,
-          currentX,
-          currentY,
-        );
-        currentX = newCoordinates.x;
-        currentY = newCoordinates.y;
-        break;
-
-      case "L":
-        currentOrientation = rotateRover(currentOrientation, "L");
-        break;
-
-      case "R":
-        currentOrientation = rotateRover(currentOrientation, "R");
-        break;
-
-      default:
-        break;
-    }
+const processInstructionsFromFile = async (
+  fileName: string,
+): Promise<InstructionsType[]> => {
+  const fileStream = fs.createReadStream(fileName);
+  const streamOfLines = readline.createInterface({
+    input: fileStream,
+    crlfDelay: Infinity,
   });
-  const result = { currentX, currentY, currentOrientation };
-  return result;
+
+  let roverMissionDetails: InstructionsType = {};
+  const roverMissions: InstructionsType[] = [];
+
+  for await (const line of streamOfLines) {
+    if (line.includes("Plateau")) {
+      const plateauSize = line.split(":")[1].split(" ");
+      roverMissionDetails = {
+        plateauSizeX: Number(plateauSize[0]),
+        plateauSizeY: Number(plateauSize[1]),
+      };
+    }
+
+    if (line.includes("Landing")) {
+      const roverLandingArray = line.split(":");
+      const roverName = roverLandingArray[0].split(" ")[0];
+      const roverLandingCoordsAndOrient = roverLandingArray[1].split(" ");
+
+      roverMissionDetails = {
+        ...roverMissionDetails,
+        roverName: roverName,
+        landingX: Number(roverLandingCoordsAndOrient[0]),
+        landingY: Number(roverLandingCoordsAndOrient[1]),
+        orientation: roverLandingCoordsAndOrient[2],
+      };
+    }
+
+    if (line.includes("Instructions")) {
+      const roverInstructions = line.split(":");
+      const instructions = roverInstructions[1];
+
+      roverMissionDetails = {
+        ...roverMissionDetails,
+        instructionSet: instructions,
+      };
+      roverMissions.push(roverMissionDetails);
+    }
+  }
+  return roverMissions;
 };
 
-const landRoverA = landRoverJourney(5, 5)(1, 2, "N")("LMLMLMLMM");
-const landRoverB = landRoverJourney(5, 5)(3, 3, "E")("MMRMMRMRRM");
+const runRoverInstructions = async () => {
+  const argArray = process.argv.slice(2);
+
+  // When reading from a file
+  if (argArray[0] === "file") {
+    // Parse the file and extract the instructions so we can pass it to the function
+    const roverMissionDetails =
+      (argArray[1] && (await processInstructionsFromFile(argArray[1]))) || [];
+
+    // Run the function for each of the plans in the array
+    const roverFinalPositions = roverMissionDetails.map((roverPlan) => {
+      const {
+        plateauSizeX,
+        plateauSizeY,
+        roverName,
+        landingX,
+        landingY,
+        orientation,
+        instructionSet,
+      } = roverPlan;
+
+      const roverJouney = landRoverJourney(plateauSizeX, plateauSizeY)(
+        landingX,
+        landingY,
+        orientation,
+      )(instructionSet);
+      console.log(
+        `${roverName}: ${roverJouney[0]} ${roverJouney[1]} ${roverJouney[2]}`,
+      );
+      return roverJouney;
+    });
+    return roverFinalPositions;
+  }
+};
+
+runRoverInstructions();
