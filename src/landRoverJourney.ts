@@ -13,8 +13,7 @@ export const landRoverJourney = (
   landingX: number,
   landingY: number,
   orientation: OrientationStringTypes,
-) => (instructionSet: string) => {
-
+) => (instructionSet: string): (number | string)[] => {
   // Set the initial values after landing
   let currentOrientation = orientation;
   let currentX = landingX;
@@ -51,9 +50,6 @@ export const landRoverJourney = (
         break;
     }
   });
-  const result = { currentX, currentY, currentOrientation };
+  const result = [currentX, currentY, currentOrientation];
   return result;
 };
-
-// const landRoverA = landRoverJourney(5, 5)(1, 2, "N")("LMLMLMLMM");
-// const landRoverB = landRoverJourney(5, 5)(3, 3, "E")("MMRMMRMRRM");
