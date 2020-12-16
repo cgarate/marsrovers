@@ -7,13 +7,13 @@ const { moveRover, rotateRover } = require("./utils");
 // Second function takes landing coordinates and orientation
 // Third function takes instruction set
 export const landRoverJourney = (
-  plateauSizeX: number,
-  plateauSizeY: number,
+  plateauSizeX?: number,
+  plateauSizeY?: number,
 ) => (
-  landingX: number,
-  landingY: number,
-  orientation: OrientationStringTypes,
-) => (instructionSet: string): (number | string)[] => {
+  landingX?: number,
+  landingY?: number,
+  orientation?: OrientationStringTypes,
+) => (instructionSet: string): (number | string | undefined)[] => {
   // Set the initial values after landing
   let currentOrientation = orientation;
   let currentX = landingX;
@@ -21,7 +21,9 @@ export const landRoverJourney = (
 
   // validate landing fits in plateau size
   const isLandingPossible =
-    plateauSizeX >= landingX && plateauSizeY >= landingY;
+    plateauSizeX && landingX && plateauSizeY && landingY
+      ? plateauSizeX >= landingX && plateauSizeY >= landingY
+      : false;
   if (!isLandingPossible) return NO_SPACE_FOR_LANDING;
 
   // Create an array to loop on the instructions
@@ -50,6 +52,5 @@ export const landRoverJourney = (
         break;
     }
   });
-  const result = [currentX, currentY, currentOrientation];
-  return result;
+  return [currentX, currentY, currentOrientation];
 };
