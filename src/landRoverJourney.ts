@@ -13,7 +13,7 @@ export const landRoverJourney = (
   landingX?: number,
   landingY?: number,
   orientation?: OrientationStringTypes,
-) => (instructionSet: string): (number | string | undefined)[] => {
+) => (instructionSet?: string): (number | string | undefined)[] => {
   // Set the initial values after landing
   let currentOrientation = orientation;
   let currentX = landingX;
@@ -27,7 +27,7 @@ export const landRoverJourney = (
   if (!isLandingPossible) return NO_SPACE_FOR_LANDING;
 
   // Create an array to loop on the instructions
-  const arrInstructions = instructionSet.split("");
+  const arrInstructions = (instructionSet && instructionSet.split("")) || [];
   arrInstructions.forEach((instruction) => {
     switch (instruction) {
       case "M":
