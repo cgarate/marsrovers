@@ -4,6 +4,8 @@
   "description": "Carlos Garate Code Challenge",
   "main": "rover.ts",
   "scripts": {
+    "tsc": "tsc",
+    "roverMission": "tsc && node ./src/build/rover.js",
     "test": "jest"
   },
   "author": "Carlos Garate",
