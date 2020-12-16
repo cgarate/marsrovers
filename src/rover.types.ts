@@ -18,6 +18,6 @@ export interface InstructionsType {
   roverName?: string;
   landingX?: number;
   landingY?: number;
-  orientation?: string;
-  instructionSet?: string[];
+  orientation?: OrientationStringTypes;
+  instructionSet?: string;
 }
