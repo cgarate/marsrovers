@@ -42,7 +42,7 @@ describe("Rover Tests", () => {
         landingCoordinatesAndOrientation[1] as number,
         landingCoordinatesAndOrientation[2] as OrientationStringTypes,
       )(instructionSet);
-      expect(result).toBe(expected);
+      expect(result).toStrictEqual(expected);
     });
   });
 });
